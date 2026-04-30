@@ -20,10 +20,13 @@ const app = express();
 // connectDB();
 
 app.use(async (req, res, next) => {
-  await connectDB();
-  next();
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
-
 
 
 // middleware
