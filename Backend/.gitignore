@@ -4,3 +4,5 @@ uploads/
 logs/
 .vercel
 .env*.local
+src/logs
+logs
