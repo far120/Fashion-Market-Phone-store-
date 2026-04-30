@@ -17,7 +17,12 @@ const app = express();
 
 
 // connect to database
-connectDB();
+// connectDB();
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 
 
@@ -70,7 +75,9 @@ app.use(require('./middlewares/error-handler.middleware'));
 
 
 // listen to server
-const port = process.env.PORT || 3002;
-app.listen(port, () => {
-    logger.info(`Server is running on http://localhost:${port}`);
-});
+// const port = process.env.PORT || 3002;
+// app.listen(port, () => {
+//     logger.info(`Server is running on http://localhost:${port}`);
+// });
+
+module.exports = app;
