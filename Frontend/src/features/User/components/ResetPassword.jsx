@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../../../components/ui/Input";
-import Reset from "../../../components/ui/Reset";
-import Submit from "../../../components/ui/Submit";
 import { useToast } from "../../../context/ToastContext";
 import { useAuth } from "../../../features/auth/hooks/useAuth";
 import { resetMyPassword } from "../services/userApi";
 import { hasMinLength } from "../../../utils/validation";
+import { FiLock, FiKey, FiShield } from "react-icons/fi";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -26,16 +24,12 @@ export default function ResetPassword() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-
-    if (!canSubmit) {
-      return;
-    }
-
+    if (!canSubmit) return;
     setLoading(true);
 
     try {
       await resetMyPassword({ currentPassword, newPassword });
-      toast.success("Password changed successfully. Please login again.");
+      toast.success("Password changed successfully. Please sign in again.");
       logout();
       navigate("/login", { replace: true });
     } catch (error) {
@@ -52,70 +46,85 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#353d9a_0%,#2b307b_48%,#8453ad_100%)] px-4 py-10 sm:py-16">
-      <div className="mx-auto w-full max-w-xl rounded-3xl bg-[#f7f7fb] p-6 shadow-[0_24px_70px_rgba(19,23,79,0.38)] sm:p-10">
-        <div className="mb-8 rounded-full bg-[#dbdbe3] p-1.5 sm:w-fit">
-          <div className="rounded-full bg-[linear-gradient(90deg,#ff6a8d_0%,#ff2f74_100%)] px-8 py-3 text-center text-base font-bold text-white shadow-[0_8px_24px_rgba(255,68,135,0.45)]">
-            Reset Password
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md glass-panel rounded-3xl p-8 border border-slate-800 space-y-6 shadow-2xl">
+        
+        <div className="text-center space-y-2">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mx-auto">
+            <FiKey />
           </div>
+          <h1 className="text-2xl font-bold text-white">Reset Password</h1>
+          <p className="text-xs text-slate-400">Update your security credentials</p>
         </div>
 
-        <h1 className="mb-3 text-center text-4xl font-extrabold tracking-wide text-[#171b3d]">
-          Change Password
-        </h1>
-        <p className="mb-8 text-center text-sm text-[#5a5f85] sm:text-base">
-          Enter your current password and choose a new secure password.
-        </p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Current Password</label>
+            <div className="relative">
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 pl-11 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500 transition"
+              />
+              <FiLock className="absolute left-4 top-3.5 text-slate-500 text-base" />
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            label="Current Password"
-            type="password"
-            value={currentPassword}
-            onChange={(event) => setCurrentPassword(event.target.value)}
-            placeholder="Enter current password"
-            error={!validCurrent && currentPassword ? "At least 6 characters" : null}
-            className="w-full rounded-2xl border px-5 py-3 text-base outline-none transition border-[#d5d9eb] bg-white shadow-[0_8px_16px_rgba(58,69,131,0.12)] focus:border-[#6f7eea]"
-          />
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">New Password</label>
+            <div className="relative">
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Min 6 characters"
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 pl-11 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500 transition"
+              />
+              <FiLock className="absolute left-4 top-3.5 text-slate-500 text-base" />
+            </div>
+          </div>
 
-          <Input
-            label="New Password"
-            type="password"
-            value={newPassword}
-            onChange={(event) => setNewPassword(event.target.value)}
-            placeholder="At least 6 characters"
-            error={!validNew && newPassword ? "At least 6 characters" : null}
-            className="w-full rounded-2xl border px-5 py-3 text-base outline-none transition border-[#d5d9eb] bg-white shadow-[0_8px_16px_rgba(58,69,131,0.12)] focus:border-[#6f7eea]"
-          />
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Confirm New Password</label>
+            <div className="relative">
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Retype new password"
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 pl-11 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500 transition"
+              />
+              <FiLock className="absolute left-4 top-3.5 text-slate-500 text-base" />
+            </div>
+            {!validConfirm && confirmPassword && (
+              <p className="text-[10px] text-rose-400 font-medium mt-1">Passwords do not match.</p>
+            )}
+          </div>
 
-          <Input
-            label="Confirm New Password"
-            type="password"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            placeholder="Confirm new password"
-            error={!validConfirm && confirmPassword ? "Passwords do not match" : null}
-            className="w-full rounded-2xl border px-5 py-3 text-base outline-none transition border-[#d5d9eb] bg-white shadow-[0_8px_16px_rgba(58,69,131,0.12)] focus:border-[#6f7eea]"
-          />
-
-          <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-            <Reset
-              title="Reset"
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <button
+              type="button"
               disabled={!canReset || loading}
-              onReset={handleReset}
-              className="rounded-2xl border border-[#cfd4ea] px-5 py-3 text-base font-semibold text-[#2a2f68] transition hover:bg-[#ecefff]"
-            />
+              onClick={handleReset}
+              className="py-3 bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-50 text-xs font-bold rounded-xl transition"
+            >
+              Clear
+            </button>
 
-            <Submit
-              title="Update Password"
-              loading={loading}
-              disabled={!canSubmit}
-              loadingLabel="Updating..."
-              className="rounded-2xl bg-[linear-gradient(90deg,#3d3fa5_0%,#1d2146_100%)] px-5 py-3 text-base font-semibold text-white shadow-[0_12px_24px_rgba(31,35,82,0.35)] transition hover:brightness-110"
-            />
+            <button
+              type="submit"
+              disabled={!canSubmit || loading}
+              className="py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 disabled:opacity-50 text-xs font-extrabold rounded-xl transition shadow-lg shadow-emerald-500/20"
+            >
+              {loading ? "Updating..." : "Update Password"}
+            </button>
           </div>
         </form>
+
       </div>
     </div>
   );
 }
+

@@ -5,11 +5,9 @@ import Spinner from "../../../components/ui/Spinner.jsx";
 import Error from "../../../components/ui/Erorr.jsx";
 import { useInput } from "../../../hooks/useInput.js";
 import { useToast } from "../../../context/ToastContext";
-import { isEmail,isNotEmpty } from "../../../utils/validation";
-import Input from "../../../components/ui/Input.jsx";
-import Reset from "../../../components/ui/Reset.jsx";
-import Submit from "../../../components/ui/Submit.jsx";
+import { isEmail, isNotEmpty } from "../../../utils/validation";
 import { useAuth } from "../../auth/hooks/useAuth.js";
+import { FiUser, FiMail, FiShield, FiKey, FiCheck } from "react-icons/fi";
 
 export default function Profile() {
   const { user, setUser } = useAuth();
@@ -17,10 +15,8 @@ export default function Profile() {
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [initialValues, setInitialValues] = useState({ username: "", email: "" });
-
   const toast = useToast();
 
-  // inputs
   const {
     value: usernameValue,
     handleInputChange: handleUsernameChange,
@@ -35,16 +31,12 @@ export default function Profile() {
     hasError: emailHasError,
   } = useInput("", (value) => isEmail(value));
 
-
-// Validation states for enabling submit button
   const isUsernameValid = isNotEmpty(usernameValue);
   const isEmailValid = isEmail(emailValue);
   const hasChanges =
     usernameValue.trim() !== initialValues.username ||
     emailValue.trim() !== initialValues.email;
   const canSubmit = isUsernameValid && isEmailValid && hasChanges;
-  
-  // Validation state for enabling reset button
   const canReset = hasChanges;
 
   function syncFormValues(profileData) {
@@ -55,8 +47,6 @@ export default function Profile() {
     setInitialValues({ username, email });
   }
 
-
-  // fetch profile
   useEffect(() => {
     async function fetchProfile() {
       setLoading(true);
@@ -69,7 +59,6 @@ export default function Profile() {
         setLoading(false);
       }
     }
-
     fetchProfile();
   }, [user]);
 
@@ -85,7 +74,7 @@ export default function Profile() {
       const updatedData = await updateProfile(profileData);
       setUser(updatedData);
       syncFormValues(updatedData);
-      toast.success("Profile updated successfully ✅");
+      toast.success("Profile details saved! ✅");
     } catch (error) {
       toast.error(error.message || "Failed to update profile ❌");
     } finally {
@@ -93,105 +82,111 @@ export default function Profile() {
     }
   }
 
-
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#353d9a_0%,#2b307b_48%,#8453ad_100%)] px-4 py-10 sm:py-16">
-        <div className="mx-auto flex w-full max-w-xl flex-col items-center rounded-3xl bg-[#f7f7fb] p-8 text-center shadow-[0_24px_70px_rgba(19,23,79,0.38)] sm:p-10">
-          <div className="mb-4 rounded-full bg-[#ecefff] px-4 py-1 text-sm font-bold tracking-wide text-[#5057a1]">
-            Profile
-          </div>
-          <Spinner size="lg" />
-          <p className="mt-4 text-lg font-semibold text-[#2b3278]">
-            Loading your profile...
-          </p>
-        </div>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Spinner size="lg" />
       </div>
     );
   }
+
   if (error) return <Error message={error.message} />;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#353d9a_0%,#2b307b_48%,#8453ad_100%)] px-4 py-10 sm:py-16">
-      <div className="mx-auto w-full max-w-xl rounded-3xl bg-[#f7f7fb] p-6 shadow-[0_24px_70px_rgba(19,23,79,0.38)] sm:p-10">
-        <div className="mb-8 rounded-full bg-[#dbdbe3] p-1.5">
-          <div className="rounded-full bg-[linear-gradient(90deg,#ff6a8d_0%,#ff2f74_100%)] px-4 py-3 text-center text-base font-bold text-white shadow-[0_8px_24px_rgba(255,68,135,0.45)]">
-            Profile Settings
+    <div className="min-h-screen bg-slate-950 text-slate-100 px-4 py-12 flex items-center justify-center">
+      <div className="w-full max-w-xl glass-panel rounded-3xl p-8 border border-slate-800 space-y-6 shadow-2xl">
+        
+        {/* Header User Badge */}
+        <div className="flex items-center gap-4 pb-6 border-b border-slate-800">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 shadow-lg shadow-emerald-500/20">
+            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-emerald-400 font-black text-2xl">
+              {usernameValue?.[0]?.toUpperCase() || "U"}
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              {usernameValue || "Account Settings"}
+            </h1>
+            <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Role: {user?.role?.toUpperCase() || "CUSTOMER"}
+            </span>
           </div>
         </div>
 
-        <h1 className="mb-3 text-center text-4xl font-extrabold tracking-wide text-[#171b3d]">
-          My Profile
-        </h1>
-        <p className="mb-8 text-center text-sm text-[#5a5f85] sm:text-base">
-          Update your account details using the same UI style as the auth screens.
-        </p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Username</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={usernameValue}
+                onChange={handleUsernameChange}
+                onBlur={handleUsernameBlur}
+                className={`w-full bg-slate-900 border rounded-xl px-4 py-3 pl-11 text-sm text-white placeholder:text-slate-500 outline-none transition ${
+                  usernameHasError ? "border-rose-500" : "border-slate-800 focus:border-emerald-500"
+                }`}
+              />
+              <FiUser className="absolute left-4 top-3.5 text-slate-500 text-base" />
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            label="Username"
-            type="text"
-            value={usernameValue}
-            onChange={handleUsernameChange}
-            onBlur={handleUsernameBlur}
-            error={usernameHasError && "Invalid username"}
-            className={`w-full rounded-2xl border px-5 py-3 text-base outline-none transition ${
-              usernameHasError
-                ? "border-red-500 bg-red-50"
-                : "border-[#d9def0] bg-[#edf2fc] focus:border-[#6f7eea]"
-            }`}
-          />
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Email Address</label>
+            <div className="relative">
+              <input
+                type="email"
+                value={emailValue}
+                onChange={handleEmailChange}
+                onBlur={handleEmailBlur}
+                className={`w-full bg-slate-900 border rounded-xl px-4 py-3 pl-11 text-sm text-white placeholder:text-slate-500 outline-none transition ${
+                  emailHasError ? "border-rose-500" : "border-slate-800 focus:border-emerald-500"
+                }`}
+              />
+              <FiMail className="absolute left-4 top-3.5 text-slate-500 text-base" />
+            </div>
+          </div>
 
-          <Input
-            label="Email"
-            type="email"
-            value={emailValue}
-            onChange={handleEmailChange}
-            onBlur={handleEmailBlur}
-            error={emailHasError && "Invalid email"}
-            className={`w-full rounded-2xl border px-5 py-3 text-base outline-none transition ${
-              emailHasError
-                ? "border-red-500 bg-red-50"
-                : "border-[#d9def0] bg-[#edf2fc] focus:border-[#6f7eea]"
-            }`}
-          />
-
-          <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-            <Reset
-              title="Reset"
-              disabled={!canReset || loading || saving}
-              onReset={() => {
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <button
+              type="button"
+              disabled={!canReset || saving}
+              onClick={() => {
                 handleUsernameChange({ target: { value: initialValues.username } });
                 handleEmailChange({ target: { value: initialValues.email } });
               }}
-              className="rounded-2xl border border-[#cfd4ea] px-5 py-3 text-base font-semibold text-[#2a2f68] transition hover:bg-[#ecefff]"
-            />
+              className="py-3 bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-50 text-xs font-bold rounded-xl transition"
+            >
+              Cancel
+            </button>
 
-            <Submit
-              title="Save Changes"
-              loading={saving}
-              disabled={!canSubmit || loading}
-              loadingLabel="Saving changes..."
-              className="rounded-2xl bg-[linear-gradient(90deg,#3d3fa5_0%,#1d2146_100%)] px-5 py-3 text-base font-semibold text-white shadow-[0_12px_24px_rgba(31,35,82,0.35)] transition hover:brightness-110"
-            />
+            <button
+              type="submit"
+              disabled={!canSubmit || saving}
+              className="py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 disabled:opacity-50 text-xs font-extrabold rounded-xl transition shadow-lg shadow-emerald-500/20"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
           </div>
         </form>
 
-        <section className="mt-8 rounded-2xl border border-[#d9def0] bg-white p-5 shadow-[0_8px_16px_rgba(58,69,131,0.08)]">
-          <h2 className="text-xl font-bold text-[#2c3380]">Security</h2>
-          <p className="mt-2 text-sm text-[#5d6288]">
-            If you think your password is weak or exposed, update it now.
-          </p>
+        {/* Security Module */}
+        <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
+          <div>
+            <h3 className="font-bold text-white text-sm flex items-center gap-2">
+              <FiShield className="text-emerald-400" /> Account Security
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">Need to update your password or credential key?</p>
+          </div>
 
           <Link
             to="/reset-password"
-            className="mt-4 inline-flex rounded-2xl bg-[linear-gradient(90deg,#3d3fa5_0%,#1d2146_100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(31,35,82,0.35)] transition hover:brightness-110"
+            className="px-4 py-2.5 bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-bold text-slate-200 rounded-xl transition flex items-center gap-1.5"
           >
-            Reset Password
+            <FiKey /> Reset Password
           </Link>
-        </section>
+        </div>
+
       </div>
     </div>
   );
-}
+}

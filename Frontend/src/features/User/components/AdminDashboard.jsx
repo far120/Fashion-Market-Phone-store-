@@ -1,135 +1,117 @@
 import { Link } from "react-router-dom";
-import { FiArrowRight, FiBarChart2, FiClock, FiPackage, FiShield, FiUsers } from "react-icons/fi";
-import Error from "../../../components/ui/Erorr";
-import Spinner from "../../../components/ui/Spinner";
+import { FiPackage, FiUsers, FiShoppingBag, FiActivity, FiTag, FiAward, FiShield, FiArrowRight } from "react-icons/fi";
 import { useAuth } from "../../auth/hooks/useAuth";
 
 export default function AdminDashboard() {
-  const { isAdmin, isManager } = useAuth();
+  const { isAdmin, isManager, user } = useAuth();
+  
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#111827_0%,#1f2937_42%,#334155_100%)] px-4 py-10 sm:py-16">
-      <section className="mx-auto w-full max-w-7xl rounded-4xl border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.95)_0%,rgba(250,250,255,0.88)_54%,rgba(236,248,255,0.9)_100%)] p-6 shadow-[0_30px_90px_rgba(15,23,42,0.42)] backdrop-blur sm:p-10">
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <article className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-            <p className="inline-flex rounded-full border border-slate-200 bg-slate-950 px-4 py-1 text-xs font-bold uppercase tracking-[0.22em] text-white">
-              Admin Hub
-            </p>
-            <h1 className="mt-4 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-              Choose the right dashboard.
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-              Split the administration experience into two clear operating rooms: commerce for products and orders,
-              and people for users and activity logs.
-            </p>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {isAdmin && (
-              <Link
-                to="/admin/dashboard/products"
-                className="group rounded-2xl bg-[linear-gradient(90deg,#0f172a_0%,#1e293b_100%)] px-5 py-4 text-white shadow-[0_14px_32px_rgba(15,23,42,0.25)] transition hover:-translate-y-0.5"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-200">Commerce</p>
-                    <h2 className="mt-1 text-lg font-black">Products and orders</h2>
-                  </div>
-                  <FiPackage className="text-2xl text-sky-200 transition group-hover:translate-x-1" />
-                </div>
-              </Link>
-              )}
-
-               { isManager && (
-              <Link
-                to="/admin/dashboard/users"
-                className="group rounded-2xl bg-[linear-gradient(90deg,#1e293b_0%,#334155_100%)] px-5 py-4 text-white shadow-[0_14px_32px_rgba(15,23,42,0.22)] transition hover:-translate-y-0.5"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">People</p>
-                    <h2 className="mt-1 text-lg font-black">Users and logs</h2>
-                  </div>
-                  <FiUsers className="text-2xl text-emerald-200 transition group-hover:translate-x-1" />
-                </div>
-              </Link>
-               )}
-            </div>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Navigation</p>
-                <p className="mt-2 text-sm font-semibold text-slate-950">Two focused dashboards</p>
+    <div className="min-h-screen bg-slate-950 text-slate-100 px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        
+        {/* HEADER */}
+        <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <FiShield /> Admin Hub Panel
+                </span>
+                <span className="text-xs font-extrabold text-slate-400 uppercase bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
+                  Signed as {isAdmin ? "ADMIN" : "MANAGER"}
+                </span>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Design</p>
-                <p className="mt-2 text-sm font-semibold text-slate-950">Premium global look</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Flow</p>
-                <p className="mt-2 text-sm font-semibold text-slate-950">Less clutter, more clarity</p>
-              </div>
+              <h1 className="text-3xl font-extrabold text-white mt-3">
+                Store Management Hub
+              </h1>
+              <p className="text-slate-400 text-sm mt-1 max-w-xl">
+                Manage product inventory, brand catalogs, category hierarchies, user permissions, and order statuses.
+              </p>
             </div>
-          </article>
-
-          <article className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
-            <p className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-bold uppercase tracking-[0.22em] text-sky-200">
-              Command Overview
-            </p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-               {isAdmin && (
-                <>
-              <Link
-                to="/admin/products"
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Manage</p>
-                <h3 className="mt-2 text-lg font-black">Products</h3>
-              </Link>
-              <Link
-                to="/admin/orders"
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Review</p>
-                <h3 className="mt-2 text-lg font-black">Orders</h3>
-              </Link>
-                </>
-               )}
-              {isManager && (
-                <>
-              <Link
-                to="/admin/users"
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Manage</p>
-                <h3 className="mt-2 text-lg font-black">Users</h3>
-              </Link>
-              <Link
-                to="/admin/logs"
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Inspect</p>
-                <h3 className="mt-2 text-lg font-black">Logs</h3>
-              </Link>
-                </>
-                )}
-            </div>
-
-            <div className="mt-6 rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(96,165,250,0.18)_0%,rgba(14,165,233,0.08)_100%)] p-5">
-              <div className="flex items-center gap-3">
-                <FiBarChart2 className="text-2xl text-sky-300" />
-                <div>
-                  <p className="text-sm font-semibold text-sky-200">System posture</p>
-                  <p className="text-sm text-slate-300">Each dashboard now has a single purpose and a cleaner visual hierarchy.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center gap-3 text-sm text-slate-300">
-              <FiClock className="text-sky-300" />
-              <span>Optimized for quick admin access across desktop and mobile.</span>
-            </div>
-          </article>
+          </div>
         </div>
-      </section>
+
+        {/* QUICK NAVIGATION MODULES */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {isAdmin && (
+            <div className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-2xl">
+                  <FiPackage />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                  Commerce Hub
+                </span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Product & Order Operations</h3>
+                <p className="text-xs text-slate-400 mt-1">Manage catalog listings, price rules, stock quantities, and order statuses.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Link
+                  to="/admin/products"
+                  className="px-4 py-2.5 bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-xs font-bold text-white rounded-xl transition flex items-center justify-between"
+                >
+                  <span>Products</span> <FiArrowRight />
+                </Link>
+                <Link
+                  to="/admin/orders"
+                  className="px-4 py-2.5 bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-xs font-bold text-white rounded-xl transition flex items-center justify-between"
+                >
+                  <span>Orders</span> <FiArrowRight />
+                </Link>
+                <Link
+                  to="/admin/categories"
+                  className="px-4 py-2.5 bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-xs font-bold text-white rounded-xl transition flex items-center justify-between"
+                >
+                  <span>Categories</span> <FiArrowRight />
+                </Link>
+                <Link
+                  to="/admin/brands"
+                  className="px-4 py-2.5 bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-xs font-bold text-white rounded-xl transition flex items-center justify-between"
+                >
+                  <span>Brands</span> <FiArrowRight />
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {isManager && (
+            <div className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center text-2xl">
+                  <FiUsers />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full">
+                  User & Security Hub
+                </span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">People & System Audit</h3>
+                <p className="text-xs text-slate-400 mt-1">Review user roles, manage registered accounts, and inspect system access logs.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Link
+                  to="/admin/users"
+                  className="px-4 py-2.5 bg-slate-900 border border-slate-800 hover:border-cyan-500/40 text-xs font-bold text-white rounded-xl transition flex items-center justify-between"
+                >
+                  <span>Users</span> <FiArrowRight />
+                </Link>
+                <Link
+                  to="/admin/logs"
+                  className="px-4 py-2.5 bg-slate-900 border border-slate-800 hover:border-cyan-500/40 text-xs font-bold text-white rounded-xl transition flex items-center justify-between"
+                >
+                  <span>System Logs</span> <FiArrowRight />
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+
+      </div>
     </div>
   );
 }
+

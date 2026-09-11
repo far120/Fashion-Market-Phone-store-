@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { FiBox, FiPlus, FiEdit2, FiTrash2, FiSearch, FiFilter, FiUploadCloud, FiRefreshCw, FiDollarSign } from "react-icons/fi";
 import Spinner from "../../components/ui/Spinner";
 import Error from "../../components/ui/Erorr";
 import { useToast } from "../../context/ToastContext";
@@ -10,7 +11,7 @@ import {
   getBrands,
   getProducts,
   updateProduct,
-} from "../../features/restaurant/services/restaurantApi";
+} from "../../features/product/services/productApi";
 
 const initialForm = {
   name: "",
@@ -182,32 +183,34 @@ export default function AdminProductsPage() {
     try {
       if (editingId) {
         await updateProduct(editingId, payload);
-        toast?.success("Product updated");
+        toast?.success("Product updated successfully");
       } else {
         await createProduct(payload);
-        toast?.success("Product created");
+        toast?.success("Product created successfully");
       }
 
       resetForm();
       await refreshData();
     } catch (err) {
-      toast?.error(err.message);
+      toast?.error(err.message || "Failed to save product");
     }
   }
 
   async function handleDelete(productId) {
+    const confirmed = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmed) return;
     try {
       await deleteProduct(productId);
-      toast?.success("Product deleted");
+      toast?.success("Product deleted successfully");
       await refreshData();
     } catch (err) {
-      toast?.error(err.message);
+      toast?.error(err.message || "Failed to delete product");
     }
   }
 
   if (loading) {
     return (
-      <div className="flex min-h-[55vh] items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center bg-slate-950">
         <Spinner size="lg" />
       </div>
     );
@@ -215,210 +218,327 @@ export default function AdminProductsPage() {
 
   if (error) {
     return (
-      <div className="mx-auto mt-8 max-w-6xl px-4">
+      <div className="mx-auto min-h-[60vh] max-w-6xl px-4 py-12 bg-slate-950">
         <Error message={error.message} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fff7ed_0%,#fffbeb_45%,#f8fafc_100%)] px-4 py-10">
-      <section className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.95fr_1.2fr]">
-        <article className="rounded-3xl border border-[#fed7aa] bg-white p-6 shadow-[0_18px_50px_rgba(194,65,12,0.16)]">
-          <h1 className="text-3xl font-black text-[#9a3412]">Admin Products</h1>
-          <p className="mt-1 text-sm text-[#c2410c]">Create and update restaurant menu items.</p>
-
-          <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Product name"
-              required
-              className="w-full rounded-xl border border-[#fdba74] bg-[#fff7ed] px-3 py-2 text-sm"
-            />
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              rows={3}
-              placeholder="Description"
-              className="w-full rounded-xl border border-[#fdba74] bg-[#fff7ed] px-3 py-2 text-sm"
-            />
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-[#9a3412]">Product Image</label>
-              <input
-                name="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full rounded-xl border border-[#fdba74] bg-[#fff7ed] px-3 py-2 text-sm"
-              />
-              <p className="mt-1 text-xs text-[#9a3412]">
-                {editingId ? "Choose a file only if you want to replace current image" : "Upload product image"}
-              </p>
+    <div className="min-h-screen bg-slate-950 text-slate-100 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        
+        {/* HEADER BANNER */}
+        <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <FiBox /> Smartphone Inventory & Catalog
+              </span>
+              <span className="text-xs font-extrabold text-slate-400 uppercase bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
+                {products.length} Total Listings
+              </span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                name="price"
-                type="number"
-                step="0.01"
-                min={1}
-                value={form.price}
-                onChange={handleChange}
-                placeholder="Price"
-                required
-                className="rounded-xl border border-[#fdba74] bg-[#fff7ed] px-3 py-2 text-sm"
-              />
-              <input
-                name="stock"
-                type="number"
-                min={0}
-                value={form.stock}
-                onChange={handleChange}
-                placeholder="Stock"
-                required
-                className="rounded-xl border border-[#fdba74] bg-[#fff7ed] px-3 py-2 text-sm"
-              />
-            </div>
-
-            <select
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              required
-              className="w-full rounded-xl border border-[#fdba74] bg-[#fff7ed] px-3 py-2 text-sm"
-            >
-              <option value="">Select category</option>
-              {categories.map((category) => (
-                <option key={category._id} value={category._id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <select
-              name="brand"
-              value={form.brand}
-              onChange={handleChange}
-              required
-              className="w-full rounded-xl border border-[#fdba74] bg-[#fff7ed] px-3 py-2 text-sm"
-            >
-              <option value="">Select brand</option>
-              {brands.map((brand) => (
-                <option key={brand._id} value={brand._id}>
-                  {brand.name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              name="available"
-              value={form.available}
-              onChange={handleChange}
-              className="w-full rounded-xl border border-[#fdba74] bg-[#fff7ed] px-3 py-2 text-sm"
-            >
-              <option value="true">Available</option>
-              <option value="false">Not available</option>
-            </select>
-
-            <p className="text-xs text-[#9a3412]">
-              Stock controls the final availability state, so set stock to `0` when the item should be unavailable.
+            <h1 className="text-3xl font-extrabold text-white mt-3">
+              Device Catalog Management
+            </h1>
+            <p className="text-slate-400 text-sm mt-1">
+              Add new phone models, update price tags, modify stock availability, and manage device specs.
             </p>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="submit"
-                className="rounded-xl bg-[linear-gradient(90deg,#fb923c_0%,#ea580c_100%)] px-4 py-3 text-sm font-bold text-white"
-              >
-                {editingId ? "Update Product" : "Add Product"}
-              </button>
-              <button
-                type="button"
-                onClick={resetForm}
-                className="rounded-xl border border-[#fdba74] px-4 py-3 text-sm font-semibold text-[#9a3412]"
-              >
-                Reset
-              </button>
-            </div>
-          </form>
-        </article>
-
-        <article className="rounded-3xl border border-[#fcd34d] bg-white p-6 shadow-[0_18px_50px_rgba(217,119,6,0.14)]">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-2xl font-black text-[#a16207]">Current Products</h2>
-            <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search product by name"
-                className="w-full rounded-xl border border-[#fbbf24] bg-[#fffbeb] px-3 py-2 text-sm lg:w-64"
-              />
-              <select
-                value={availabilityFilter}
-                onChange={(event) => setAvailabilityFilter(event.target.value)}
-                className="w-full rounded-xl border border-[#fbbf24] bg-[#fffbeb] px-3 py-2 text-sm lg:w-44"
-              >
-                <option value="all">All availability</option>
-                <option value="available">Available</option>
-                <option value="unavailable">Unavailable</option>
-              </select>
-            </div>
           </div>
-          <div className="mt-5 space-y-3">
-            {filteredProducts.map((product) => (
-              <div key={product._id} className="rounded-xl border border-[#fde68a] bg-[#fffbeb] p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <img
-                      src={resolveImageUrl(product.image)}
-                      alt={product.name}
-                      onError={(event) => {
-                        event.currentTarget.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9";
-                      }}
-                      className="h-16 w-16 rounded-lg object-cover"
-                    />
-                    <div>
-                    <p className="font-bold text-[#92400e]">{product.name}</p>
-                    <p className="text-sm text-[#a16207]">{product.description || "No description"}</p>
-                    <p className="text-xs text-[#78716c]">
-                      Category: {getCategoryName(product)}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#b45309]">
-                      {product.available ? "Available" : "Not available"} • Stock {product.stock ?? 0}
-                    </p>
-                    </div>
-                  </div>
-                  <p className="text-xl font-black text-[#78350f]">${Number(product.price || 0).toFixed(2)}</p>
-                </div>
+        </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => beginEdit(product)}
-                    className="rounded-lg border border-[#fbbf24] px-3 py-1 text-xs font-semibold text-[#a16207]"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(product._id)}
-                    className="rounded-lg border border-[#fda4af] px-3 py-1 text-xs font-semibold text-[#be123c]"
-                  >
-                    Delete
-                  </button>
+        <section className="grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+          
+          {/* PRODUCT FORM PANEL */}
+          <article className="glass-card rounded-3xl border border-slate-800 p-6 space-y-5 h-fit">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-xl">
+                  {editingId ? <FiEdit2 /> : <FiPlus />}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">
+                    {editingId ? "Edit Smartphone Specs" : "Add New Smartphone"}
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    {editingId ? "Update existing device details" : "Fill details to create catalog item"}
+                  </p>
                 </div>
               </div>
-            ))}
 
-            {filteredProducts.length === 0 && (
-              <p className="rounded-xl border border-dashed border-[#fde68a] bg-[#fffbeb] p-4 text-sm text-[#a16207]">
-                No products found.
-              </p>
-            )}
-          </div>
-        </article>
-      </section>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1"
+                >
+                  <FiRefreshCw /> Cancel Edit
+                </button>
+              )}
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Device Model Name
+                </label>
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="e.g. iPhone 15 Pro Max 256GB"
+                  required
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Specifications & Description
+                </label>
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  rows={3}
+                  placeholder="Describe processor, camera specs, battery capacity, color option..."
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Product Image Upload
+                </label>
+                <div className="relative">
+                  <input
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-2.5 text-xs text-slate-300 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-800 file:text-emerald-400 hover:file:bg-slate-700 transition cursor-pointer"
+                  />
+                </div>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {editingId ? "Upload only if you want to replace current image" : "High quality device preview image"}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                    Price ($)
+                  </label>
+                  <input
+                    name="price"
+                    type="number"
+                    step="0.01"
+                    min={1}
+                    value={form.price}
+                    onChange={handleChange}
+                    placeholder="999.00"
+                    required
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                    Stock Quantity
+                  </label>
+                  <input
+                    name="stock"
+                    type="number"
+                    min={0}
+                    value={form.stock}
+                    onChange={handleChange}
+                    placeholder="25"
+                    required
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                    Category
+                  </label>
+                  <select
+                    name="category"
+                    value={form.category}
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-3 text-xs font-bold text-slate-200 outline-none focus:border-emerald-500 transition"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                    Manufacturer Brand
+                  </label>
+                  <select
+                    name="brand"
+                    value={form.brand}
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-3 text-xs font-bold text-slate-200 outline-none focus:border-emerald-500 transition"
+                  >
+                    <option value="">Select Brand</option>
+                    {brands.map((brand) => (
+                      <option key={brand._id} value={brand._id}>
+                        {brand.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Storefront Status
+                </label>
+                <select
+                  name="available"
+                  value={form.available}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-3 text-xs font-bold text-slate-200 outline-none focus:border-emerald-500 transition"
+                >
+                  <option value="true">Available for Order</option>
+                  <option value="false">Hidden / Out of Stock</option>
+                </select>
+              </div>
+
+              <div className="pt-2 grid grid-cols-2 gap-3">
+                <button
+                  type="submit"
+                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-3 text-sm font-bold text-slate-950 transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                >
+                  {editingId ? <FiEdit2 /> : <FiPlus />}
+                  {editingId ? "Update Product" : "Create Product"}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white transition"
+                >
+                  Reset Form
+                </button>
+              </div>
+            </form>
+          </article>
+
+          {/* PRODUCTS LIST PANEL */}
+          <article className="glass-card rounded-3xl border border-slate-800 p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-white">Active Products</h2>
+                <p className="text-xs text-slate-400">{filteredProducts.length} matching inventory items</p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <div className="relative flex-1 sm:w-48">
+                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    placeholder="Search name/brand..."
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900/90 pl-8 pr-3 py-2 text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 transition"
+                  />
+                </div>
+
+                <select
+                  value={availabilityFilter}
+                  onChange={(event) => setAvailabilityFilter(event.target.value)}
+                  className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-bold text-slate-200 outline-none focus:border-emerald-500 transition"
+                >
+                  <option value="all">All Items</option>
+                  <option value="available">Available Only</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product._id}
+                  className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 hover:border-slate-700 transition space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={resolveImageUrl(product.image)}
+                        alt={product.name}
+                        onError={(event) => {
+                          event.currentTarget.src = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9";
+                        }}
+                        className="h-16 w-16 rounded-xl object-cover border border-slate-800 bg-slate-950 flex-shrink-0"
+                      />
+                      <div>
+                        <h3 className="font-bold text-white text-base">{product.name}</h3>
+                        <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">{product.description || "No description provided."}</p>
+                        
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-[10px] font-semibold text-slate-300">
+                            {getCategoryName(product)}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-semibold border border-cyan-500/20">
+                            {getBrandName(product)}
+                          </span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            product.available && (product.stock ?? 0) > 0
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                          }`}>
+                            {product.available ? `In Stock (${product.stock ?? 0})` : "Unavailable"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-xl font-extrabold text-amber-400 font-mono">${Number(product.price || 0).toFixed(2)}</p>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 border-t border-slate-800/60 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => beginEdit(product)}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition flex items-center gap-1"
+                    >
+                      <FiEdit2 /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(product._id)}
+                      className="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-xs font-bold text-rose-400 border border-rose-500/20 transition flex items-center gap-1"
+                    >
+                      <FiTrash2 /> Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {filteredProducts.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-slate-800 p-8 text-center">
+                  <FiBox className="mx-auto text-3xl text-slate-600 mb-2" />
+                  <p className="text-sm font-semibold text-slate-400">No products found</p>
+                  <p className="text-xs text-slate-500 mt-1">Try adding a new smartphone product or clearing search filters.</p>
+                </div>
+              )}
+            </div>
+          </article>
+        </section>
+
+      </div>
     </div>
   );
 }
+

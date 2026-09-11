@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FiUsers, FiSearch, FiShield, FiUserCheck, FiTrash2, FiRefreshCw, FiChevronLeft, FiChevronRight, FiFilter } from "react-icons/fi";
 import Error from "../../../components/ui/Erorr";
 import Spinner from "../../../components/ui/Spinner";
 import { useToast } from "../../../context/ToastContext";
@@ -33,18 +34,13 @@ export default function AdminUsers() {
   const [roleValue, setRoleValue] = useState("");
   const [statusValue, setStatusValue] = useState("");
 
-    // ======================
-    // Fetch users
-    // ======================
-    
-    
-     async function fetchUsers() { 
+  async function fetchUsers() { 
     setLoading(true);
     setError(null);
     try {
       const data = await getUsers({
         page,
-        limit: 5,
+        limit: 10,
         order: "desc",
         email: dataInput.email || undefined,
         username: dataInput.username || undefined,
@@ -64,10 +60,8 @@ export default function AdminUsers() {
   
   useEffect(() => {
     fetchUsers();
+  }, [page, dataInput, statusValue, roleValue]);
 
-  }, [page, dataInput , statusValue , roleValue  ]);
-
-  
   async function handleRoleChange(targetUser) {
     const nextRole = targetUser.role === "admin" ? "user" : "admin";
     setActionLoadingUserId(targetUser._id);
@@ -146,12 +140,9 @@ export default function AdminUsers() {
     setPage(1);
   }
 
-
-
-
   if (loading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center bg-slate-950">
         <Spinner size="lg" />
       </div>
     );
@@ -159,247 +150,238 @@ export default function AdminUsers() {
 
   if (error) {
     return (
-      <div className="mx-auto mt-8 max-w-6xl px-4">
+      <div className="mx-auto min-h-[60vh] max-w-6xl px-4 py-12 bg-slate-950">
         <Error message={error.message} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#353d9a_0%,#2b307b_48%,#8453ad_100%)] px-4 py-10 sm:py-16">
-      <section className="mx-auto w-full max-w-6xl rounded-3xl bg-[#f7f7fb] p-6 shadow-[0_24px_70px_rgba(19,23,79,0.38)] sm:p-10">
-        <div className="mb-8 rounded-full bg-[#dbdbe3] p-1.5 sm:w-fit">
-          <div className="rounded-full bg-[linear-gradient(90deg,#ff6a8d_0%,#ff2f74_100%)] px-8 py-3 text-center text-base font-bold text-white shadow-[0_8px_24px_rgba(255,68,135,0.45)]">
-            Admin Users Management
+    <div className="min-h-screen bg-slate-950 text-slate-100 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        
+        {/* HEADER */}
+        <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <FiUsers /> Account Access Control
+              </span>
+              <span className="text-xs font-extrabold text-slate-400 uppercase bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
+                {totalResults} Total Users
+              </span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-white mt-3">
+              User Directory & Role Permissions
+            </h1>
+            <p className="text-slate-400 text-sm mt-1">
+              Search accounts, toggle user active status, update administrative roles (Admin/User), and delete registered profiles.
+            </p>
           </div>
         </div>
 
-        <h1 className="mb-6 text-3xl font-extrabold tracking-wide text-[#171b3d] sm:text-4xl">
-          Users
-        </h1>
+        {/* SEARCH & FILTERS PANEL */}
+        <div className="glass-card rounded-3xl border border-slate-800 p-6 space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-800/80 pb-3">
+            <FiFilter className="text-cyan-400 text-lg" />
+            <h2 className="text-base font-bold text-white">Filter Accounts</h2>
+          </div>
 
-        {/* <section className="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 overflow-hidden"> */}
-          {/* 🔍 Search Bar */}
-          <div className="mb-6 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50 p-6">
-            <form onSubmit={handleApplyFilter} className="flex flex-col gap-4 lg:flex-row lg:items-end">
-              <div className="grid flex-1 grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <div className="flex flex-col gap-1">
-                  <label className="mb-1 block text-sm font-semibold text-[#545778]">Username</label>
-                  <input
+          <form onSubmit={handleApplyFilter} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Username
+                </label>
+                <input
                   type="text"
                   value={usernameValue}
                   onChange={(event) => setUsernameValue(event.target.value)}
-                  placeholder="Search by username"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  placeholder="Search username..."
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-cyan-500 transition"
                 />
-                </div>
+              </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="mb-1 block text-sm font-semibold text-[#545778]">Email</label>
-                  <input
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Email
+                </label>
+                <input
                   type="email"
                   value={emailValue}
                   onChange={(event) => setEmailValue(event.target.value)}
                   placeholder="name@example.com"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-cyan-500 transition"
                 />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="mb-1 block text-sm font-semibold text-[#545778]">Role</label>
-                  <select
-                    value={roleValue}
-                    onChange={(event) => setRoleValue(event.target.value)}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="">All roles</option>
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="mb-1 block text-sm font-semibold text-[#545778]">Status</label>
-                  <select
-                    value={statusValue}
-                    onChange={(event) => setStatusValue(event.target.value)}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="">All status</option>
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </div>
               </div>
 
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Role
+                </label>
+                <select
+                  value={roleValue}
+                  onChange={(event) => setRoleValue(event.target.value)}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2.5 text-xs font-bold text-slate-200 outline-none focus:border-cyan-500 transition"
+                >
+                  <option value="">All Roles</option>
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Account Status
+                </label>
+                <select
+                  value={statusValue}
+                  onChange={(event) => setStatusValue(event.target.value)}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2.5 text-xs font-bold text-slate-200 outline-none focus:border-cyan-500 transition"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-indigo-700 hover:to-indigo-800 hover:shadow-lg active:scale-95 lg:whitespace-nowrap"
+                className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl transition shadow-lg shadow-cyan-500/20 flex items-center gap-1.5"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                Search
+                <FiSearch /> Apply Filters
               </button>
-
               <button
                 type="button"
                 onClick={handleClearFilter}
-                className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-3 font-medium text-gray-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95"
+                className="px-4 py-2.5 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white font-semibold text-xs rounded-xl transition"
               >
                 Clear
               </button>
-            </form>
-
-            {(dataInput.username || dataInput.email || dataInput.role || dataInput.isActive) && (
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-gray-600">Filtering by:</span>
-                {dataInput.username && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
-                    user: {dataInput.username}
-                  </span>
-                )}
-                {dataInput.email && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
-                    email: {dataInput.email}
-                  </span>
-                )}
-                {dataInput.role && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
-                    role: {dataInput.role}
-                  </span>
-                )}
-                {dataInput.isActive && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
-                    status: {dataInput.isActive === "true" ? "active" : "inactive"}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-
-
-        <div className="overflow-x-auto rounded-2xl border border-[#d7dcf2] bg-white shadow-lg">
-          <table className="min-w-full text-sm">
-            <thead className="sticky top-0 bg-gradient-to-r from-[#eef1ff] to-[#e8ecff] text-left text-[#2f3478]">
-              <tr>
-                <th className="px-6 py-4 font-bold">Username</th>
-                <th className="px-6 py-4 font-bold">Email</th>
-                <th className="px-6 py-4 font-bold">Role</th>
-                <th className="px-6 py-4 font-bold">Status</th>
-                <th className="px-6 py-4 font-bold text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((item) => {
-                const isCurrentUser = item._id === currentUser?._id;
-                const actionBusy = actionLoadingUserId === item._id;
-
-                return (
-                  <tr key={item._id} className="border-t border-[#eceffd] hover:bg-[#f9faff] transition-colors text-[#3b3f67]">
-                    <td className="px-6 py-4 font-semibold text-[#171b3d]">{item.username}</td>
-                    <td className="px-6 py-4 text-[#535883]">{item.email}</td>
-                    <td className="px-6 py-4">
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-[#f0f1ff] text-[#3d3fa5]">
-                        {item.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-4 py-2 text-xs font-bold ${
-                          item.isActive
-                            ? "bg-green-50 text-green-700 border border-green-200"
-                            : "bg-red-50 text-red-700 border border-red-200"
-                        }`}
-                      >
-                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                          item.isActive ? "bg-green-500" : "bg-red-500"
-                        }`}></span>
-                        {item.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        <button
-                          type="button"
-                          onClick={() => handleRoleChange(item)}
-                          disabled={actionBusy || isCurrentUser}
-                          className="rounded-lg bg-gradient-to-r from-[#2f3792] to-[#3d3fa5] hover:from-[#252d7a] hover:to-[#32348c] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                          {item.role === "admin" ? "Make User" : "Make Admin"}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleActivationToggle(item)}
-                          disabled={actionBusy || isCurrentUser}
-                          className="rounded-lg bg-gradient-to-r from-[#6f52c9] to-[#7d5fb8] hover:from-[#5e456e] hover:to-[#6b4da6] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                          {item.isActive ? "Deactivate" : "Activate"}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item)}
-                          disabled={actionBusy || isCurrentUser}
-                          className="rounded-lg bg-gradient-to-r from-[#d94e5b] to-[#c53a56] hover:from-[#bf3f52] hover:to-[#b02c48] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {users.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[#9098ad] font-medium">
-                    <div className="text-5xl mb-3">📭</div>
-                    No users found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+            </div>
+          </form>
         </div>
 
-        <div className="mt-8 flex items-center justify-between gap-3 px-6 py-6 bg-gradient-to-r from-[#f9faff] to-[#f0f1ff] rounded-xl border border-[#e8ecff]">
+        {/* USERS TABLE */}
+        <div className="glass-card rounded-3xl border border-slate-800 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-900/90 text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="px-6 py-4">User</th>
+                  <th className="px-6 py-4">Email</th>
+                  <th className="px-6 py-4">Role</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/80">
+                {users.map((item) => {
+                  const isCurrentUser = item._id === currentUser?._id;
+                  const actionBusy = actionLoadingUserId === item._id;
+
+                  return (
+                    <tr key={item._id} className="hover:bg-slate-900/40 transition">
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-white">{item.username || "User"}</p>
+                        <p className="text-[10px] text-slate-500 font-mono">ID: #{item._id.slice(-6)}</p>
+                      </td>
+                      <td className="px-6 py-4 text-slate-300">{item.email}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+                          item.role === "admin"
+                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                            : "bg-slate-800 text-slate-300 border-slate-700"
+                        }`}>
+                          <FiShield className="text-xs" /> {item.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          item.isActive
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${item.isActive ? "bg-emerald-400" : "bg-rose-400"}`}></span>
+                          {item.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleRoleChange(item)}
+                            disabled={actionBusy || isCurrentUser}
+                            className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-amber-500/40 text-xs font-bold text-amber-400 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                          >
+                            {item.role === "admin" ? "Make User" : "Make Admin"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleActivationToggle(item)}
+                            disabled={actionBusy || isCurrentUser}
+                            className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/40 text-xs font-bold text-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                          >
+                            {item.isActive ? "Deactivate" : "Activate"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item)}
+                            disabled={actionBusy || isCurrentUser}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                            title="Delete User"
+                          >
+                            <FiTrash2 className="text-base" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+
+                {users.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                      <FiUsers className="mx-auto text-3xl mb-2 text-slate-600" />
+                      <p className="text-sm font-semibold">No user accounts found matching query.</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* PAGINATION */}
+        <div className="flex items-center justify-between gap-4 glass-card rounded-2xl border border-slate-800 px-6 py-4">
           <button
             type="button"
             onClick={() => setPage((prev) => Math.max(1, prev - 1))}
             disabled={page <= 1}
-            className="rounded-lg border-2 border-[#cfd4ea] px-5 py-2.5 font-bold text-[#2a2f68] transition hover:bg-[#ecefff] hover:border-[#a8b0d4] transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+            className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1"
           >
-            ← Previous
+            <FiChevronLeft /> Previous
           </button>
 
-          <div className="flex items-center gap-3">
-            <p className="text-sm font-bold text-[#3b3f67]">
-              Page <span className="bg-[#3d3fa5] text-white px-3 py-1 rounded-lg">{page}</span> of <span className="text-[#3d3fa5] font-bold">{totalPages}</span>
-            </p>
-          </div>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Page <span className="text-white font-extrabold">{page}</span> of <span className="text-white font-extrabold">{totalPages}</span>
+          </p>
 
           <button
             type="button"
             onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
             disabled={page >= totalPages}
-            className="rounded-lg border-2 border-[#cfd4ea] px-5 py-2.5 font-bold text-[#2a2f68] transition hover:bg-[#ecefff] hover:border-[#a8b0d4] transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+            className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1"
           >
-            Next →
+            Next <FiChevronRight />
           </button>
         </div>
-      </section>
+
+      </div>
     </div>
   );
-}
+}

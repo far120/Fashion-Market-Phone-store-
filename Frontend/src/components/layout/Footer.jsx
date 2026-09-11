@@ -1,77 +1,89 @@
 import { FaFacebookF, FaLinkedinIn, FaTwitter } from "react-icons/fa";
-import { FiArrowUpRight } from "react-icons/fi";
+import { FiArrowUpRight, FiShield, FiTruck, FiHeadphones, FiSmartphone } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="bg-[linear-gradient(90deg,#2f3792_0%,#1f2350_100%)] text-[#d8dbef]">
-      <div className="max-w-6xl mx-auto px-6 py-10 grid gap-8 md:grid-cols-3">
+    <footer className="glass-panel border-t border-slate-800 bg-slate-950 text-slate-400 mt-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid gap-10 md:grid-cols-4">
         
-        {/* Logo / About */}
-        <div>
-              <Link to="/">
-  <svg viewBox="0 0 680 420" width="110" height="68" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="340,38 435,90 435,194 340,246 245,194 245,90" fill="#ffffff" opacity="0.06"/>
-    <polygon points="340,50 423,98 423,186 340,234 257,186 257,98" fill="none" stroke="#ffffff" strokeWidth="2.5" opacity="0.35"/>
-    <text x="340" y="168" textAnchor="middle" fontFamily="monospace" fontSize="76" fontWeight="700" fill="#ffffff" letterSpacing="-2" opacity="0.95">MF</text>
-    <circle cx="340" cy="206" r="4" fill="#EF9F27"/>
-    <text x="340" y="278" textAnchor="middle" fontFamily="'Segoe UI', sans-serif" fontSize="21" fontWeight="500" fill="#ffffff" letterSpacing="6">MOSTAFA ELFAR</text>
-    <line x1="230" y1="293" x2="450" y2="293" stroke="#EF9F27" strokeWidth="1.5"/>
-    <text x="340" y="318" textAnchor="middle" fontFamily="'Segoe UI', sans-serif" fontSize="12.5" fontWeight="400" fill="#a0a8e8" letterSpacing="3">MERN STACK DEVELOPER</text>
-  </svg>
-</Link>
-          <p className="text-sm text-[#c4cae9]">
-            Premium restaurant ordering platform with real-time menu, reviews, and admin control.
+        {/* Logo / Brand Info */}
+        <div className="space-y-4 md:col-span-1">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 flex items-center justify-center">
+              <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center text-emerald-400 font-bold">
+                <FiSmartphone className="text-xl" />
+              </div>
+            </div>
+            <div>
+              <span className="text-base font-extrabold tracking-tight text-white block">
+                FASHION <span className="text-emerald-400">&</span> TECH
+              </span>
+              <span className="text-[9px] uppercase font-bold tracking-widest text-slate-500 block -mt-1">
+                Store Marketplace
+              </span>
+            </div>
+          </Link>
+
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Your destination for flagship smartphones, premium audio gear, wearable tech, and fashion accessories with official warranty and express delivery.
           </p>
         </div>
 
-        {/* Links */}
+        {/* Quick Links */}
         <div>
-          <h3 className="text-white font-semibold mb-3">
-            Quick Links
-          </h3>
-          <ul className="space-y-2 text-sm">
+          <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Quick Navigation</h3>
+          <ul className="space-y-2.5 text-xs font-semibold">
             <li>
-              <Link to="/" className="inline-flex items-center gap-2 hover:text-white">
-                Home <FiArrowUpRight />
+              <Link to="/" className="hover:text-emerald-400 transition flex items-center gap-1">
+                Home Marketplace <FiArrowUpRight className="text-[10px]" />
               </Link>
             </li>
             <li>
-              <Link to="/login" className="inline-flex items-center gap-2 hover:text-white">
-                Login <FiArrowUpRight />
+              <Link to="/menu" className="hover:text-emerald-400 transition flex items-center gap-1">
+                Store Catalog <FiArrowUpRight className="text-[10px]" />
               </Link>
             </li>
             <li>
-              <Link to="/menu" className="inline-flex items-center gap-2 hover:text-white">
-                Menu <FiArrowUpRight />
+              <Link to="/reviews" className="hover:text-emerald-400 transition flex items-center gap-1">
+                Customer Reviews <FiArrowUpRight className="text-[10px]" />
               </Link>
             </li>
             <li>
-              <Link to="/orders" className="inline-flex items-center gap-2 hover:text-white">
-                Orders <FiArrowUpRight />
-              </Link>
-            </li>
-            <li>
-              <Link to="/admin/dashboard" className="inline-flex items-center gap-2 hover:text-white">
-                Admin Dashboard <FiArrowUpRight />
+              <Link to="/orders" className="hover:text-emerald-400 transition flex items-center gap-1">
+                My Orders & Track <FiArrowUpRight className="text-[10px]" />
               </Link>
             </li>
           </ul>
         </div>
 
-        {/* Social */}
+        {/* Support & Warranty */}
         <div>
-          <h3 className="text-white font-semibold mb-3">
-            Follow Us
-          </h3>
+          <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Customer Care</h3>
+          <ul className="space-y-2.5 text-xs text-slate-400">
+            <li className="flex items-center gap-2">
+              <FiShield className="text-emerald-400" /> Official 2-Year Warranty
+            </li>
+            <li className="flex items-center gap-2">
+              <FiTruck className="text-cyan-400" /> 24h Express Shipping
+            </li>
+            <li className="flex items-center gap-2">
+              <FiHeadphones className="text-amber-400" /> 24/7 Tech Customer Support
+            </li>
+          </ul>
+        </div>
+
+        {/* Social Links */}
+        <div>
+          <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Connect With Us</h3>
           <div className="flex gap-3 text-sm">
-            <a href="#" aria-label="Facebook" className="rounded-full bg-[#2a2f68] p-2.5 text-white transition hover:bg-[#ff2f74]">
+            <a href="#" aria-label="Facebook" className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-emerald-400 hover:border-emerald-500/30 flex items-center justify-center transition">
               <FaFacebookF />
             </a>
-            <a href="#" aria-label="Twitter" className="rounded-full bg-[#2a2f68] p-2.5 text-white transition hover:bg-[#ff2f74]">
+            <a href="#" aria-label="Twitter" className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-emerald-400 hover:border-emerald-500/30 flex items-center justify-center transition">
               <FaTwitter />
             </a>
-            <a href="#" aria-label="LinkedIn" className="rounded-full bg-[#2a2f68] p-2.5 text-white transition hover:bg-[#ff2f74]">
+            <a href="#" aria-label="LinkedIn" className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-emerald-400 hover:border-emerald-500/30 flex items-center justify-center transition">
               <FaLinkedinIn />
             </a>
           </div>
@@ -79,10 +91,10 @@ export default function Footer() {
 
       </div>
 
-      {/* Bottom */}
-      <div className="border-t border-[#3f478f] text-center text-sm py-4 text-[#c4cae9]">
-        © {new Date().getFullYear()} TasteCraft. All rights reserved.
+      {/* Copyright */}
+      <div className="border-t border-slate-800/80 text-center text-xs py-4 text-slate-500">
+        © {new Date().getFullYear()} Fashion & Tech Market. All rights reserved.
       </div>
     </footer>
   );
-}
+}

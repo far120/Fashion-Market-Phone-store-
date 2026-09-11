@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { FiStar, FiMessageSquare, FiEdit2, FiTrash2, FiCheckCircle, FiUser } from "react-icons/fi";
 import Spinner from "../components/ui/Spinner";
 import Error from "../components/ui/Erorr";
 import { useToast } from "../context/ToastContext";
@@ -9,7 +10,8 @@ import {
   getProducts,
   getReviews,
   updateReview,
-} from "../features/restaurant/services/restaurantApi";
+} from "../features/product/services/productApi";
+
 
 export default function ReviewsPage() {
   const toast = useToast();
@@ -89,15 +91,21 @@ export default function ReviewsPage() {
 
   const myUserId = user?._id || user?.id;
 
-  const selectedProductName = useMemo(() => {
-    return products.find((item) => item._id === selectedProduct)?.name || "Selected Product";
+  const selectedProductObj = useMemo(() => {
+    return products.find((item) => item._id === selectedProduct);
   }, [products, selectedProduct]);
+
+  const averageRating = useMemo(() => {
+    if (reviews.length === 0) return "5.0";
+    const sum = reviews.reduce((acc, r) => acc + (r.rating || 5), 0);
+    return (sum / reviews.length).toFixed(1);
+  }, [reviews]);
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     if (!isAuthenticated) {
-      toast?.warning("Please login first");
+      toast?.warning("Please sign in to write a review");
       return;
     }
 
@@ -106,17 +114,22 @@ export default function ReviewsPage() {
       return;
     }
 
+    if (!comment.trim()) {
+      toast?.warning("Please write a comment for your review");
+      return;
+    }
+
     try {
       if (editingId) {
         await updateReview(editingId, { rating, comment });
-        toast?.success("Review updated");
+        toast?.success("Review updated successfully ⭐");
       } else {
         await createReview({
           productId: selectedProduct,
           rating,
           comment,
         });
-        toast?.success("Review published");
+        toast?.success("Review published successfully! ⭐");
       }
 
       setEditingId(null);
@@ -137,7 +150,7 @@ export default function ReviewsPage() {
   async function handleDelete(reviewId) {
     try {
       await deleteReview(reviewId);
-      toast?.success("Review deleted");
+      toast?.success("Review removed");
       await loadReviews(selectedProduct);
     } catch (err) {
       toast?.error(err.message);
@@ -146,7 +159,7 @@ export default function ReviewsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[55vh] items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center bg-slate-950">
         <Spinner size="lg" />
       </div>
     );
@@ -154,115 +167,211 @@ export default function ReviewsPage() {
 
   if (error) {
     return (
-      <div className="mx-auto mt-8 max-w-6xl px-4">
+      <div className="mx-auto mt-8 max-w-6xl px-4 text-white">
         <Error message={error.message} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f0fdf4_0%,#ecfeff_40%,#f8fafc_100%)] px-4 py-10 sm:py-16">
-      <section className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1fr_1.1fr]">
-        <article className="rounded-3xl border border-[#bbf7d0] bg-white p-6 shadow-[0_18px_40px_rgba(22,163,74,0.12)]">
-          <h1 className="text-3xl font-black text-[#166534]">Product Reviews</h1>
-          <p className="mt-2 text-sm text-[#15803d]">Help others with your feedback and ratings.</p>
-
-          <div className="mt-6">
-            <label className="mb-2 block text-sm font-semibold text-[#166534]">Product</label>
-            <select
-              value={selectedProduct}
-              onChange={(event) => setSelectedProduct(event.target.value)}
-              className="w-full rounded-xl border border-[#86efac] bg-[#f0fdf4] px-3 py-2 text-sm text-[#166534]"
-            >
-              {products.map((product) => (
-                <option key={product._id} value={product._id}>
-                  {product.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-2xl border border-[#dcfce7] bg-[#f7fff9] p-4">
+    <div className="min-h-screen bg-slate-950 text-slate-100 px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        
+        {/* HEADER */}
+        <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#166534]">Rating</label>
-              <input
-                type="number"
-                min={1}
-                max={5}
-                value={rating}
-                onChange={(event) => setRating(Number(event.target.value || 5))}
-                className="w-full rounded-xl border border-[#86efac] bg-white px-3 py-2 text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-[#166534]">Comment</label>
-              <textarea
-                rows={4}
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                className="w-full rounded-xl border border-[#86efac] bg-white px-3 py-2 text-sm"
-                placeholder="Share your experience"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-[linear-gradient(90deg,#22c55e_0%,#15803d_100%)] px-4 py-3 text-sm font-bold text-white transition hover:brightness-110"
-            >
-              {editingId ? "Update Review" : "Submit Review"}
-            </button>
-          </form>
-        </article>
-
-        <article className="rounded-3xl border border-[#bae6fd] bg-white p-6 shadow-[0_18px_40px_rgba(14,116,144,0.13)]">
-          <h2 className="text-2xl font-black text-[#0f766e]">Reviews For {selectedProductName}</h2>
-
-          <div className="mt-5 space-y-3">
-            {reviews.map((review) => {
-              const reviewUserId = review?.user?._id || review?.user?.id;
-              const canManage = myUserId && reviewUserId === myUserId;
-
-              return (
-                <div key={review._id} className="rounded-xl border border-[#bae6fd] bg-[#f0f9ff] p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-bold text-[#155e75]">{review?.user?.email || "User"}</p>
-                      <p className="text-sm text-[#0369a1]">Rating: {review.rating}/5</p>
-                    </div>
-                    {canManage && (
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(review)}
-                          className="rounded-lg border border-[#38bdf8] px-2 py-1 text-xs font-semibold text-[#0369a1]"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(review._id)}
-                          className="rounded-lg border border-[#fda4af] px-2 py-1 text-xs font-semibold text-[#be123c]"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  <p className="mt-3 text-sm text-[#334155]">{review.comment || "No comment"}</p>
-                </div>
-              );
-            })}
-
-            {reviews.length === 0 && (
-              <p className="rounded-xl border border-dashed border-[#bae6fd] bg-[#f0f9ff] p-4 text-sm text-[#0f766e]">
-                No reviews yet for this product.
+              <span className="px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                Customer Ratings & Feedback
+              </span>
+              <h1 className="text-3xl font-extrabold text-white mt-3">
+                Product Reviews & Ratings
+              </h1>
+              <p className="text-slate-400 text-sm mt-1 max-w-xl">
+                Read authentic customer feedback and share your product experience with the community.
               </p>
-            )}
+            </div>
+
+            <div className="flex items-center gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+              <div className="text-center">
+                <span className="text-3xl font-black text-amber-400">{averageRating}</span>
+                <span className="text-[10px] text-slate-500 block uppercase font-bold">Average Score</span>
+              </div>
+              <div className="h-10 w-px bg-slate-800" />
+              <div>
+                <div className="flex items-center text-amber-400 text-sm">
+                  {[...Array(5)].map((_, i) => (
+                    <FiStar key={i} className="fill-current" />
+                  ))}
+                </div>
+                <span className="text-xs text-slate-400 font-medium">{reviews.length} Verified Reviews</span>
+              </div>
+            </div>
           </div>
-        </article>
-      </section>
+        </div>
+
+        {/* DUAL CONTENT: FORM & REVIEWS LIST */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* LEFT: SUBMIT REVIEW FORM */}
+          <article className="lg:col-span-5 glass-panel rounded-2xl p-6 border border-slate-800 space-y-6">
+            <div className="pb-4 border-b border-slate-800">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <FiMessageSquare className="text-emerald-400" />
+                {editingId ? "Edit Your Review" : "Write a Product Review"}
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">Select a product and rate your experience.</p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Product Selector */}
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-400 tracking-wider block mb-2">
+                  Select Product
+                </label>
+                <select
+                  value={selectedProduct}
+                  onChange={(e) => setSelectedProduct(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-emerald-500 font-medium"
+                >
+                  {products.map((prod) => (
+                    <option key={prod._id} value={prod._id}>
+                      {prod.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Star Rating Picker */}
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-400 tracking-wider block mb-2">
+                  Overall Rating ({rating}/5 Stars)
+                </label>
+                <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-3 rounded-xl">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setRating(star)}
+                      className={`text-2xl transition hover:scale-125 ${
+                        star <= rating ? "text-amber-400 fill-current" : "text-slate-600"
+                      }`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Comment Textarea */}
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-400 tracking-wider block mb-2">
+                  Your Feedback
+                </label>
+                <textarea
+                  rows={5}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="What did you like or dislike about this product? Highlight performance, design, or warranty..."
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm rounded-xl transition shadow-lg shadow-emerald-500/20"
+              >
+                {editingId ? "Update Review" : "Publish Review"}
+              </button>
+            </div>
+          </article>
+
+          {/* RIGHT: REVIEWS LIST */}
+          <article className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-slate-800 space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                  {selectedProductObj?.name || "Product"}
+                </span>
+                <h2 className="text-xl font-bold text-white">Community Reviews</h2>
+              </div>
+              <span className="text-xs font-bold text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
+                {reviews.length} Review{reviews.length === 1 ? "" : "s"}
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              {reviews.map((rev) => {
+                const reviewUserId = rev?.user?._id || rev?.user?.id;
+                const canManage = myUserId && reviewUserId === myUserId;
+                const revUser = rev?.user?.username || rev?.user?.email || "Verified Customer";
+
+                return (
+                  <div key={rev._id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+                          <FiUser />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                            {revUser}
+                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                              <FiCheckCircle /> Verified Buyer
+                            </span>
+                          </h4>
+                          <div className="flex items-center gap-1 text-amber-400 text-xs mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <FiStar
+                                key={i}
+                                className={`text-xs ${i < (rev.rating || 5) ? "fill-current text-amber-400" : "text-slate-700"}`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {canManage && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(rev)}
+                            className="p-2 text-slate-400 hover:text-emerald-400 rounded-lg hover:bg-slate-800 transition"
+                            title="Edit Review"
+                          >
+                            <FiEdit2 />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(rev._id)}
+                            className="p-2 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition"
+                            title="Delete Review"
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <p className="text-sm text-slate-300 leading-relaxed pl-13">
+                      {rev.comment || "Great product experience!"}
+                    </p>
+                  </div>
+                );
+              })}
+
+              {reviews.length === 0 && (
+                <div className="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-slate-400 text-xs">
+                  No reviews published for this product yet. Be the first to review!
+                </div>
+              )}
+            </div>
+          </article>
+
+        </div>
+      </div>
     </div>
   );
 }
+
